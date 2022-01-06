@@ -44,7 +44,6 @@
           credentials_json: ${{ inputs.google_private_key }}
 
       - id: set-up-cloud-sdk
-        shell: bash
         uses: google-github-actions/setup-gcloud@master
 
       - id: configure-docker
