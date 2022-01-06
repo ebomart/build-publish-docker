@@ -44,15 +44,18 @@
           credentials_json: ${{ inputs.google_private_key }}
 
       - id: set-up-cloud-sdk
+        shell: bash
         uses: google-github-actions/setup-gcloud@master
 
    
       - id: configure-docker
+        shell: bash
         run: |
           gcloud auth configure-docker
           
       # Push the Docker image to Google Container Registry
       - id: publish-to-registry
+        shell: bash
         run: |
           docker push ${{ inputs.registry_host }}/${{ inputs.gke_project }}//${{ inputs.image_name }}:${{ inputs.sha }}
             
