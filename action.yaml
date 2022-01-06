@@ -62,7 +62,7 @@
         shell: bash
         run: |
             set +e
-            tags=$(gcloud container images list-tags ${{ inputs.registry_host }}/${{ inputs.gke_project }}//${{ inputs.image_name }} --filter="tags:${{ inputs.sha }}" --format=json)
+            tags=$(gcloud container images list-tags ${{ inputs.registry_host }}/${{ inputs.gke_project }}/${{ inputs.image_name }} --filter="tags:${{ inputs.sha }}" --format=json)
             if [[ "$tags" == "[]" ]]; then
                 echo "Image not found, Building"
                 echo "::set-output name=exists::0"
