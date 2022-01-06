@@ -14,7 +14,8 @@
         required: true
       sha:
         description: "Image tag"
-        required: true
+        required: false
+        default: ${{ github.sha }}
       google_private_key:
         descrition: "Key to connect to Google cloud"
         required: true
@@ -36,7 +37,7 @@
       - id: docker-build
         shell: bash
         run: |
-          docker build -t "$REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:$GITHUB_SHA" .
+          docker build -t "$REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:${{ inputs.sha }}" .
 
       - id: auth
         uses: google-github-actions/auth@v0
