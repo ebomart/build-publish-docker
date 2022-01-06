@@ -14,8 +14,8 @@
         required: true
       sha:
         description: "Image tag"
-        required: false
-        default: ${{ github.sha }}
+        required: true
+        # default: ${{ github.sha }}
       google_private_key:
         descrition: "Key to connect to Google cloud"
         required: true
