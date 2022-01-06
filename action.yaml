@@ -15,6 +15,9 @@
       sha:
         description: "Image tag"
         required: true
+      google_private_key:
+        descrition: "Key to connect to Google cloud"
+        required: true
       registry_username:
         description: "Registry username"
         required: false
@@ -30,6 +33,29 @@
     runs:
       using: "composite"
       steps:
+      - id: docker-build
+        shell: bash
+        run: |
+          docker build -t "$REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE:$GITHUB_SHA" .
+
+      - id: auth
+        uses: google-github-actions/auth@v0
+        with:
+          credentials_json: ${{ inputs.google_private_key }}
+
+      - id: set-up-cloud-sdk
+        uses: google-github-actions/setup-gcloud@master
+
+   
+      - id: configure-docker
+        run: |
+          gcloud auth configure-docker
+          
+      # Push the Docker image to Google Container Registry
+      - id: publish-to-registry
+        run: |
+          docker push ${{ inputs.registry_host }}/${{ inputs.gke_project }}//${{ inputs.image_name }}:${{ inputs.sha }}
+            
       - id: check-image-exists
         shell: bash
         run: |
