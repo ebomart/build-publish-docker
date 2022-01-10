@@ -42,7 +42,8 @@
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: '${{ inputs.registry_host }}/${{ inputs.gke_project }}/${{ inputs.image_name }}:${{ inputs.sha }}'
+          image-ref: 'us.gcr.io/ibo-platform-components/${{ inputs.image_name }}:${{ inputs.sha }}'
+          image: ${{ inputs.image_name }}
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
