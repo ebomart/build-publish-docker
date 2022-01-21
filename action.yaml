@@ -3,6 +3,9 @@
     description: "Builds and pushes an image to a registry"
     
     inputs:
+      file:
+        description: "Docker file"
+        required: true
       registry_host:
         description: "Image registry host e.g. us.gcr.io"
         required: true
@@ -34,22 +37,17 @@
     runs:
       using: "composite"
       steps:
+      - run: cat $docker_file > ${{ github.action_path }}/Dockerfile
+        env:
+          docker_file: ${{ inputs.file }}
+        shell: bash
+      - run: ${{ github.action_path }}/trivy-docker-image-scan.sh
+        shell: bash
+        
       - id: docker-build
         shell: bash
         run: |
           docker build -t "${{ inputs.registry_host }}/${{ inputs.gke_project }}/${{ inputs.image_name }}:${{ inputs.sha }}" .
-
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        env:
-          IMAGE: ${{ inputs.image_name }}
-        with:
-          image-ref: 'us.gcr.io/ibo-platform-components/$IMAGE:${{ inputs.sha }}'
-          format: 'table'
-          exit-code: '1'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL' 
   
       - id: auth
         uses: google-github-actions/auth@v0
