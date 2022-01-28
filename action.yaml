@@ -28,6 +28,10 @@
       registry_password:
         description: "Registry password"
         required: false
+      docker_build_args:
+        description: "Docker build arguments"
+        required: false
+        default: ""
 
     outputs:
       container_image_exists:
@@ -47,7 +51,7 @@
       - id: docker-build
         shell: bash
         run: |
-          docker build -t "${{ inputs.registry_host }}/${{ inputs.gke_project }}/${{ inputs.image_name }}:${{ inputs.sha }}" .
+          docker build ${{ inputs.docker_build_args }} -t "${{ inputs.registry_host }}/${{ inputs.gke_project }}/${{ inputs.image_name }}:${{ inputs.sha }}" .
   
       - id: auth
         uses: google-github-actions/auth@v0
