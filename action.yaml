@@ -32,6 +32,10 @@
         description: "Docker build arguments"
         required: false
         default: ""
+      npm_token:
+        description: "Environment variable"
+        required: false
+        default: ""
 
     outputs:
       container_image_exists:
