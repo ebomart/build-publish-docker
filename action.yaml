@@ -53,6 +53,8 @@
         shell: bash
         
       - id: docker-build
+        env:
+          NPM_TOKEN: ${{ inputs.npm_token }}
         shell: bash
         run: |
           docker build ${{ inputs.docker_build_args }} -t "${{ inputs.registry_host }}/${{ inputs.gke_project }}/${{ inputs.image_name }}:${{ inputs.sha }}" .
