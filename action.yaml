@@ -55,7 +55,7 @@
       - id: docker-build
         shell: bash
         run: |
-          docker build ${{ inputs.docker_build_args }} --env ${{ inputs.npm_token }}-t "${{ inputs.registry_host }}/${{ inputs.gke_project }}/${{ inputs.image_name }}:${{ inputs.sha }}" .
+          docker build ${{ inputs.docker_build_args }} --env ${{ inputs.npm_token }} -t "${{ inputs.registry_host }}/${{ inputs.gke_project }}/${{ inputs.image_name }}:${{ inputs.sha }}" .
   
       - id: auth
         uses: google-github-actions/auth@v0
