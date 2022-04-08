@@ -70,5 +70,3 @@ jobs:
           file: Dockerfile
           docker_build_args: $DOCKER_BUILD_ARGS
 ```
-
-Update tag
