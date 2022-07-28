@@ -49,16 +49,7 @@
         env:
           docker_file: ${{ inputs.file }}
         shell: bash
-      - run: ${{ github.action_path }}/trivy-docker-image-scan.sh
-        shell: bash
-        
-      - id: docker-build
-        env:
-          NPM_TOKEN: ${{ inputs.npm_token }}
-        shell: bash
-        run: |
-          docker build ${{ inputs.docker_build_args }} -t "${{ inputs.registry_host }}/${{ inputs.gke_project }}/${{ inputs.image_name }}:${{ inputs.sha }}" .
-  
+
       - id: auth
         uses: google-github-actions/auth@v0
         with:
@@ -71,6 +62,17 @@
         shell: bash
         run: |
           gcloud auth configure-docker
+          
+      - run: ${{ github.action_path }}/trivy-docker-image-scan.sh
+        shell: bash
+        
+      - id: docker-build
+        env:
+          NPM_TOKEN: ${{ inputs.npm_token }}
+        shell: bash
+        run: |
+          docker build ${{ inputs.docker_build_args }} -t "${{ inputs.registry_host }}/${{ inputs.gke_project }}/${{ inputs.image_name }}:${{ inputs.sha }}" .
+
           
       # Push the Docker image to Google Container Registry
       - id: publish-to-registry
