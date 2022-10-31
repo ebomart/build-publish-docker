@@ -77,8 +77,8 @@
           push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          tags: ${{ inputs.registry_host }}/${{ inputs.registry_username }}/${{ inputs.image_name }}:${{ inputs.sha }}
-          build-args: ${{ inputs.docker_build_args }}
+          tags: ${{ inputs.registry_host }}/${{ inputs.gke_project }}/${{ inputs.image_name }}:${{ inputs.sha }}
+          build-args: ${{ inputs.npm_token }}
         
       # - id: docker-build
       #   env:
