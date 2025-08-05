@@ -1,4 +1,5 @@
 
+
     name: "Build and push image"
     description: "Builds and pushes an image to a registry"
     
@@ -12,6 +13,9 @@
       gke_project:
         description: "Name of gke project"
         required: true
+      repository:
+        description: "Name of the artifact repository"
+        required: true
       image_name:
         description: "Name of image"
         required: true
@@ -20,7 +24,7 @@
         required: true
         # default: ${{ github.sha }}
       google_private_key:
-        descrition: "Key to connect to Google cloud"
+        description: "Key to connect to Google cloud"
         required: true
       registry_username:
         description: "Registry username"
@@ -51,81 +55,37 @@
         shell: bash
 
       - id: auth
-        uses: google-github-actions/auth@v0
+        uses: google-github-actions/auth@v1
         with:
           credentials_json: ${{ inputs.google_private_key }}
 
       - id: set-up-cloud-sdk
-        uses: google-github-actions/setup-gcloud@v0
+        uses: google-github-actions/setup-gcloud@v1
 
       - id: configure-docker
         shell: bash
         run: |
-          gcloud auth configure-docker
-          
-      - run: ${{ github.action_path }}/trivy-docker-image-scan.sh
-        shell: bash
+          gcloud auth configure-docker us-docker.pkg.dev
+      
         
       - id: docker-build
         env:
           NPM_TOKEN: ${{ inputs.npm_token }}
         shell: bash
         run: |
-          docker build ${{ inputs.docker_build_args }} -t "${{ inputs.registry_host }}/${{ inputs.gke_project }}/${{ inputs.image_name }}:${{ inputs.sha }}" .
+          docker build ${{ inputs.docker_build_args }} -t "${{ inputs.registry_host }}/${{ inputs.gke_project }}/${{ inputs.repository }}/${{ inputs.image_name }}:${{ inputs.sha }}" .
 
+      - id: set-execute-permission
+        shell: bash
+        run: chmod +x ${{ github.action_path }}/trivy-docker-image-scan.sh
           
+      - run: ${{ github.action_path }}/trivy-docker-image-scan.sh
+        shell: bash
+
       # Push the Docker image to Google Container Registry
       - id: publish-to-registry
         shell: bash
         run: |
-          docker push ${{ inputs.registry_host }}/${{ inputs.gke_project }}/${{ inputs.image_name }}:${{ inputs.sha }}
+          docker push ${{ inputs.registry_host }}/${{ inputs.gke_project }}/${{ inputs.repository }}/${{ inputs.image_name }}:${{ inputs.sha }}
             
-      # - id: check-image-exists
-      #   shell: bash
-      #   run: |
-      #       set +e
-      #       tags=$(gcloud container images list-tags ${{ inputs.registry_host }}/${{ inputs.gke_project }}/${{ inputs.image_name }} --filter="tags:${{ inputs.sha }}" --format=json)
-      #       if [[ "$tags" == "[]" ]]; then
-      #           echo "Image not found, Building"
-      #           echo "::set-output name=exists::0"
-      #       else
-      #           echo "::set-output name=exists::1"
-      #           echo "Image already exists"
-      #       fi
-    
-      # - name: Login to Container Registry
-      #   uses: docker/login-action@v1
-      #   with:
-      #     registry: ${{ inputs.registry_host }}
-      #     username: ${{ inputs.registry_username }}
-      #     password: ${{ inputs.registry_password }}
-    
-      # - name: Set branch name as env variable
-      #   run: |
-      #     currentbranch=$(echo ${GITHUB_REF##*/})
-      #     echo "running on $currentbranch"
-      #     echo "BRANCH=$currentbranch" >> $GITHUB_ENV
-      #   shell: bash
-    
-      # - name: Compose build ${{ inputs.service }}
-      #   shell: bash
-      #   run: sudo -E docker-compose build ${{ inputs.service }}
-      #   working-directory: ./src
-      #   env:
-      #     TAG: ${{ env.BRANCH }}
-      #     REGISTRY: ${{ inputs.registry_endpoint }}
-    
-      # - name: Compose push ${{ inputs.service }}
-      #   shell: bash
-      #   run: sudo -E docker-compose push ${{ inputs.service }}
-      #   working-directory: ./src
-      #   env:
-      #     TAG: ${{ env.BRANCH }}
-      #     REGISTRY: ${{ inputs.registry_endpoint }}
-    
-      # - name: Create multiarch manifest
-      #   shell: bash
-      #   run: |
-      #     docker --config ~/.docker manifest create ${{ inputs.registry_endpoint }}/${{ inputs.image_name }}:${{ env.BRANCH }} ${{ inputs.registry_endpoint }}/${{ inputs.image_name }}:linux-${{ env.BRANCH }}
-      #     docker --config ~/.docker manifest push ${{ inputs.registry_endpoint }}/${{ inputs.image_name }}:${{ env.BRANCH }}
-
+      
